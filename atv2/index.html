@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ibge atividade</title>
+</head>
+<body>
+    <h1>Dados Ibge</h1>
+    <h2>Escolha o estado desejado 
+        <select  id="selecter">
+            <Option>Selecione seu estado</Option>
+
+        </select>
+
+    </h2>
+    
+
+    <script>
+         let sigla;
+        async function callAysnc(){
+                try{
+                   
+                    const res  = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados");
+                    const estadosLista = await res.json();
+                    const select = document.getElementById("selecter")
+                    estadosLista.forEach(estado => {
+                        let option = document.createElement('option');
+                        option.value = estado.sigla;
+                        option.innerHTML = estado.nome;
+                        select.appendChild(option);
+                        })
+                        let opcaoEstado = document.querySelector('select').addEventListener('change',function(){
+                            sigla = document.getElementById('selecter').value
+                            const titulo2 = document.createElement("h2")
+                                    titulo2.innerHTML = "Selecione sua cidade"
+                                    document.body.appendChild(titulo2)
+                            console.log(sigla)
+                            async function callAysnc2(){
+                                try{
+                                    const rest = await fetch (`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${sigla}/municipios`)
+                                    const municipiosLista = await rest.json();
+                                    const cidades = document.createElement('select')
+                                    document.body.append(cidades)
+                                    const textinho = document.createElement('option')
+                                    textinho.innerHTML = 'cidades'
+                                    cidades.appendChild(textinho) 
+                                    municipiosLista.forEach(cidade => {
+                                        let option = document.createElement('option');
+                                        option.value = cidade.id
+                                        option.innerHTML = cidade.nome;
+                                        cidades.appendChild(option);
+                                    })
+                                    const botao = document.createElement('button')
+                                    botao.innerHTML = "Ver mais"
+                                    document.body.appendChild(botao)
+
+                                    botao.addEventListener('click',function(){
+                                        let cidadeSelecionado = cidades.value
+                                    
+                                        municipiosLista.forEach(cidadeOpcao => {
+                                            if (cidadeSelecionado === cidadeOpcao.id) {
+                                                const microRegiao = document.createElement('p')
+                                                microRegiao.innerHTML = "Micro Regiao: " + cidadeOpcao.microrregiao.nome
+                                                document.body.append(microRegiao)
+                                                const mesorRegiao = document.createElement('p')
+                                                mesorRegiao.innerHTML = "Mesor Regiao: " + cidadeOpcao.microrregiao.mesorregiao.nome
+                                                document.body.append(mesorRegiao)
+                                                const regiaoLocal = document.createElement('p')
+                                                regiaoLocal.innerHTML = "Regiao: " + cidadeOpcao.microrregiao.mesorregiao.UF.regiao.nome
+                                                document.body.append(regiaoLocal)
+                                                
+                                            }
+                                            
+                                        });
+
+                                            
+                                        })
+
+ 
+                                    
+                                    
+                                    
+                                    
+
+
+                                ;}
+                                catch(error){
+                                    console.log(error);
+                                }
+
+                                
+                            }
+
+                            callAysnc2();
+
+                        })
+
+                        
+                        
+                    ;
+                }catch(error){
+                    console.log(error);
+                }
+            }
+
+        window.onload = function(){
+            
+            callAysnc();
+        }
+
+
+
+    </script>
+    
+</body>
+</html>
